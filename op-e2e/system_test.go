@@ -114,8 +114,10 @@ func defaultSystemConfig(t *testing.T) SystemConfig {
 			},
 		},
 		Loggers: map[string]log.Logger{
-			"verifier":  testlog.Logger(t, log.LvlError).New("role", "verifier"),
-			"sequencer": testlog.Logger(t, log.LvlError).New("role", "sequencer"),
+			"verifier":  testlog.Logger(t, log.LvlDebug).New("role", "verifier"),
+			"sequencer": testlog.Logger(t, log.LvlDebug).New("role", "sequencer"),
+			"batcher":   testlog.Logger(t, log.LvlDebug).New("role", "batcher"),
+			"proposer":  testlog.Logger(t, log.LvlError).New("role", "proposer"),
 		},
 		RollupConfig: rollup.Config{
 			BlockTime:         1,

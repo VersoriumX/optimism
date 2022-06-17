@@ -543,7 +543,7 @@ func (cfg SystemConfig) start() (*System, error) {
 		LogTerminal:               true,
 		Mnemonic:                  sys.cfg.Mnemonic,
 		L2OutputHDPath:            sys.cfg.L2OutputHDPath,
-	}, "", log.New())
+	}, "", sys.cfg.Loggers["proposer"])
 	if err != nil {
 		return nil, fmt.Errorf("unable to setup l2 output submitter: %w", err)
 	}
@@ -573,13 +573,13 @@ func (cfg SystemConfig) start() (*System, error) {
 		NumConfirmations:           1,
 		ResubmissionTimeout:        5 * time.Second,
 		SafeAbortNonceTooLowCount:  3,
-		LogLevel:                   "info",
-		LogTerminal:                true,
+		LogLevel:                   "info", // ignored if started in-process this way
+		LogTerminal:                true,   // ignored
 		Mnemonic:                   sys.cfg.Mnemonic,
 		SequencerHDPath:            sys.cfg.BatchSubmitterHDPath,
 		SequencerHistoryDBFilename: sys.sequencerHistoryDBFileName,
 		SequencerBatchInboxAddress: sys.cfg.RollupConfig.BatchInboxAddress.String(),
-	}, "", log.New())
+	}, "", sys.cfg.Loggers["batcher"])
 	if err != nil {
 		return nil, fmt.Errorf("failed to setup batch submitter: %w", err)
 	}
