@@ -3,6 +3,7 @@ pragma solidity 0.8.10;
 
 import { L2OutputOracle_Initializer } from "./CommonTest.t.sol";
 import { L2OutputOracle } from "../L1/L2OutputOracle.sol";
+import { Proxy } from "../universal/Proxy.sol";
 
 contract L2OutputOracleTest is L2OutputOracle_Initializer {
     bytes32 appendedOutput1 = keccak256(abi.encode(1));
@@ -72,7 +73,9 @@ contract L2OutputOracleTest is L2OutputOracle_Initializer {
 
     function test_computeL2Timestamp() external {
         // reverts if timestamp is too low
-        vm.expectRevert("OutputOracle: Block number must be greater than or equal to the starting block number.");
+        vm.expectRevert(
+            "OutputOracle: Block number must be greater than or equal to the starting block number."
+        );
         oracle.computeL2Timestamp(startingBlockNumber - 1);
 
         // returns the correct value...
@@ -80,18 +83,24 @@ contract L2OutputOracleTest is L2OutputOracle_Initializer {
         assertEq(oracle.computeL2Timestamp(startingBlockNumber), startingTimestamp);
 
         // ... for the first block after the starting block
-        assertEq(oracle.computeL2Timestamp(startingBlockNumber + 1), startingTimestamp + submissionInterval);
+        assertEq(
+            oracle.computeL2Timestamp(startingBlockNumber + 1),
+            startingTimestamp + submissionInterval
+        );
 
         // ... for some other block number
-        assertEq(oracle.computeL2Timestamp(startingBlockNumber + 96024), startingTimestamp + submissionInterval * 96024);
+        assertEq(
+            oracle.computeL2Timestamp(startingBlockNumber + 96024),
+            startingTimestamp + submissionInterval * 96024
+        );
     }
 
     /*******************
      * Ownership tests *
      *******************/
 
-     // Test changing sequencer
-     // Test updating owner
+    // Test changing sequencer
+    // Test updating owner
 
     /*****************************
      * Append Tests - Happy Path *
@@ -158,6 +167,7 @@ contract L2OutputOracleTest is L2OutputOracle_Initializer {
         vm.expectRevert("OutputOracle: Block number must be equal to next expected block number.");
         oracle.appendL2Output(nonZeroHash, nextBlockNumber - 1, 0, 0);
     }
+
     // Test: appendL2Output fails if it would have a timestamp in the future.
     function testCannot_appendFutureTimetamp() external {
         uint256 nextBlockNumber = oracle.nextBlockNumber();
@@ -213,13 +223,16 @@ contract L2OutputOracleTest is L2OutputOracle_Initializer {
         uint256 indexed _l2BlockNumber
     );
 
-
     function test_deleteL2Output() external {
         test_appendingAnotherOutput();
 
         uint256 latestBlockNumber = oracle.latestBlockNumber();
-        L2OutputOracle.OutputProposal memory proposalToDelete = oracle.getL2Output(latestBlockNumber);
-        L2OutputOracle.OutputProposal memory newLatestOutput = oracle.getL2Output(latestBlockNumber - submissionInterval);
+        L2OutputOracle.OutputProposal memory proposalToDelete = oracle.getL2Output(
+            latestBlockNumber
+        );
+        L2OutputOracle.OutputProposal memory newLatestOutput = oracle.getL2Output(
+            latestBlockNumber - submissionInterval
+        );
 
         vm.prank(owner);
         vm.expectEmit(true, true, false, false);
@@ -232,10 +245,7 @@ contract L2OutputOracleTest is L2OutputOracle_Initializer {
 
         // validate latestBlockNumber has been reduced
         uint256 latestBlockNumberAfter = oracle.latestBlockNumber();
-        assertEq(
-            latestBlockNumber - submissionInterval,
-            latestBlockNumberAfter
-        );
+        assertEq(latestBlockNumber - submissionInterval, latestBlockNumberAfter);
 
         L2OutputOracle.OutputProposal memory proposal = oracle.getL2Output(latestBlockNumberAfter);
         // validate that the new latest output is as expected.
@@ -255,10 +265,65 @@ contract L2OutputOracleTest is L2OutputOracle_Initializer {
         test_appendingAnotherOutput();
 
         uint256 previousBlockNumber = oracle.latestBlockNumber() - submissionInterval;
-        L2OutputOracle.OutputProposal memory proposalToDelete = oracle.getL2Output(previousBlockNumber);
+        L2OutputOracle.OutputProposal memory proposalToDelete = oracle.getL2Output(
+            previousBlockNumber
+        );
 
         vm.prank(owner);
-        vm.expectRevert("OutputOracle: The output root to delete does not match the latest output proposal.");
+        vm.expectRevert(
+            "OutputOracle: The output root to delete does not match the latest output proposal."
+        );
         oracle.deleteL2Output(proposalToDelete);
+    }
+}
+
+contract L2OutputOracleUpgradeable_Test is L2OutputOracle_Initializer {
+    L2OutputOracle oracleImpl;
+    Proxy internal proxy;
+    uint64 initialBlockNum;
+
+    function setUp() override public {
+        super.setUp();
+        initialBlockNum = uint64(block.number);
+
+        // Rename the deployed oracle instance for the purposes of this test.
+        oracleImpl = oracle;
+        proxy = new Proxy(alice);
+        vm.prank(alice);
+        proxy.upgradeToAndCall(
+            address(oracleImpl),
+            abi.encodeWithSelector(
+                L2OutputOracle.initialize.selector,
+                genesisL2Output,
+                startingBlockNumber,
+                sequencer,
+                owner
+            )
+        );
+    }
+
+    function test_initValuesOnProxy() external {
+        assertEq(submissionInterval, oracleImpl.SUBMISSION_INTERVAL());
+        assertEq(historicalTotalBlocks, oracleImpl.HISTORICAL_TOTAL_BLOCKS());
+        assertEq(startingBlockNumber, oracleImpl.STARTING_BLOCK_NUMBER());
+        assertEq(startingTimestamp, oracleImpl.STARTING_TIMESTAMP());
+        assertEq(l2BlockTime, oracleImpl.L2_BLOCK_TIME());
+
+        L2OutputOracle.OutputProposal memory initOutput = oracleImpl.getL2Output(startingBlockNumber);
+        assertEq(genesisL2Output, initOutput.outputRoot);
+        assertEq(initL1Time, initOutput.timestamp);
+
+        assertEq(sequencer, oracleImpl.sequencer());
+        assertEq(owner, oracleImpl.owner());
+    }
+
+    function test_cannotInitProxy() external {
+        vm.expectRevert("Initializable: contract is already initialized");
+        address(proxy).call(abi.encodeWithSelector(L2OutputOracle.initialize.selector));
+    }
+
+    function test_cannotInitImpl() external {
+        vm.expectRevert("Initializable: contract is already initialized");
+        address(oracleImpl).call(abi.encodeWithSelector(L2OutputOracle.initialize.selector));
     }
 }
