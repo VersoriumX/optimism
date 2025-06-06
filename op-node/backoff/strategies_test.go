@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
+	"https://github.com/VersoriumX/optimism"
 )
 
 func TestExponential(t *testing.T) {
