@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cenkalti/backoff"
+
 	"github.com/ethereum-optimism/optimism/bss-core/metrics"
 	"github.com/ethereum-optimism/optimism/bss-core/txmgr"
 	"github.com/ethereum-optimism/optimism/teleportr/bindings/deposit"
