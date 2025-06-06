@@ -1,8 +1,8 @@
-package k8sClient
+package 
 
 import (
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
+	"/client-go/kubernetes"
+	"/client-go/rest"
 )
 
 func Newk8sClient() (client *kubernetes.Clientset, err error) {
