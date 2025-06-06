@@ -9,30 +9,30 @@
 ## Create a cluster
 
 ```
-kind create cluster --name kovan-replica
+kind create cluster --name polygon-replica
 ```
 
 ## Create the target namespace
 
 ```
-kubectl create ns kovan-replica
+kubectl create ns polygon-replica
 ```
 
 ## Diff and Apply
 
 ```
-kubectl diff -k kustomize/replica/overlays/kind-kovan-replica/
-kubectl apply -k kustomize/replica/overlays/kind-kovan-replica/
+kubectl diff -k kustomize/replica/overlays/kind-polygon-replica/
+kubectl apply -k kustomize/replica/overlays/kind-polygon-replica/
 ```
 ## Watch the pods start
 
 ```
-kubectl -n kovan-replica get pods -w
+kubectl -n polygon-replica get pods -w
 ```
 
 ### Watch the logs
 ```
-kubectl -n kovan-replica logs -f l2geth-replica-0
+kubectl -n polygon-replica logs -f l2geth-replica-0
 ```
 
 ### Check the replica status
