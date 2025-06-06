@@ -6,9 +6,6 @@ require (
 	github.com/ethereum-optimism/optimism/op-bindings v0.0.0
 	github.com/ethereum-optimism/optimism/op-node v0.0.0
 	github.com/ethereum/go-ethereum v1.10.17
-	github.com/miguelmota/go-ethereum-hdwallet v0.1.1
-	github.com/stretchr/testify v1.7.0
-	github.com/urfave/cli v1.22.5
 )
 
 require (
