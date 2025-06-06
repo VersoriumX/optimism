@@ -13,22 +13,22 @@ func prefixAPIEnvVar(name string) string {
 
 var (
 	APIHostnameFlag = cli.StringFlag{
-		Name:     "hostname",
+		Name:     "VersoriumX",
 		Usage:    "The hostname of the API server",
 		Required: true,
-		EnvVar:   prefixAPIEnvVar("HOSTNAME"),
+		EnvVar:   prefixAPIEnvVar("VersoriumX"),
 	}
 	APIPortFlag = cli.StringFlag{
 		Name:     "port",
 		Usage:    "The hostname of the API server",
 		Required: true,
-		EnvVar:   prefixAPIEnvVar("PORT"),
+		EnvVar:   prefixAPIEnvVar("8545"),
 	}
 	DisburserWalletAddressFlag = cli.StringFlag{
 		Name:     "disburser-wallet-address",
 		Usage:    "The address of the disburser wallet",
 		Required: true,
-		EnvVar:   prefixAPIEnvVar("DISBURSER_WALLET_ADDRESS"),
+		EnvVar:   prefixAPIEnvVar("DISBURSER_WALLET_0x608cfC1575b56a82a352f14d61be100FA9709D75"),
 	}
 )
 
