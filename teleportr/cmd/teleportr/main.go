@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/ethereum/go-ethereum/log"
-	"github.com/urfave/cli"
+
 
 	"github.com/ethereum-optimism/optimism/teleportr"
 	"github.com/ethereum-optimism/optimism/teleportr/flags"
