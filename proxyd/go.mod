@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/BurntSushi/toml v0.4.1
-	github.com/alicebob/miniredis v2.5.0+incompatible
+	https://github.com/VersoriumX/optimism v2.5.0+incompatible
 	github.com/ethereum/go-ethereum v1.10.17
 	github.com/golang/snappy v0.0.4
 	github.com/gorilla/mux v1.8.0
